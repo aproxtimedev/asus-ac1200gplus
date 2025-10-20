@@ -91,6 +91,7 @@ jobs:
           TGZ_FILE=$(find asuswrt -type f -name "*.tgz" | head -n 1)
           echo "Extracting $TGZ_FILE"
           tar xvf "$TGZ_FILE" -C asuswrt
+          ls -l -a asuswrt
 
       # 6️⃣ Build firmware
       - name: Build RT-AC1200G+ firmware
