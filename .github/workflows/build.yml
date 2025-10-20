@@ -14,8 +14,10 @@ jobs:
     env:
       LD_LIBRARY_PATH: /opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib
       TOOLCHAIN_BASE: /opt/toolchains
-      # Note: We use the special ${{ github.path }} syntax here to properly append to the existing PATH
-      PATH: /opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:/opt/toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:/projects/hnd/tools/linux/hndtools-armeabi-2011.09/bin:${{ github.path }}
+      PATH: |
+        /opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:\
+        /opt/toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:\
+        /projects/hnd/tools/linux/hndtools-armeabi-2011.09/bin:$PATH
 
     steps:
       # 1️⃣ Checkout repository
