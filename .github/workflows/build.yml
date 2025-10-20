@@ -73,7 +73,8 @@ jobs:
             lib32z1 \
             libncurses5-dev \
             libncurses5:i386 \
-            ccache
+            ccache \
+            xutils-dev
 
       # 4️⃣ Enable ccache
       - name: Setup ccache
