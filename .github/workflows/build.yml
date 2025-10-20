@@ -96,6 +96,7 @@ jobs:
       # 6️⃣ Build firmware
       - name: Build RT-AC1200G+ firmware
         run: |
+          cd asuswrt
           cd asuswrt/release/src-rt-9.x
           make RT-AC1200G+ -j$(nproc)
 
