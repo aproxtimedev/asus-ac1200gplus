@@ -12,13 +12,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      LD_LIBRARY_PATH: /opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib
-      TOOLCHAIN_BASE: /opt/toolchains
       PATH: |
         /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\
-        /opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:\
-        /opt/toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:\
-        /projects/hnd/tools/linux/hndtools-armeabi-2011.09/bin:$PATH
+        /opt/brcm/hndtools-mipsel-linux/bin:\
+        /opt/brcm/hndtools-mipsel-uclibc/bin:\
+        :$PATH
 
     steps:
       # 1️⃣ Checkout repository
@@ -107,7 +105,8 @@ jobs:
       - name: Build RT-AC1200G+ firmware
         run: |
           cd asuswrt
-          cd asuswrt/release/src-rt-9.x/src
+          cd asuswrt/release/src-rt/
+          cp -r tools/brcm/* /opt
           make RT-AC1200G+ -j$(nproc)
 
       # 7️⃣ Collect output firmware
