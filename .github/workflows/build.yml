@@ -94,14 +94,6 @@ jobs:
           tar xvf "$TGZ_FILE" -C asuswrt
           ls -l -a asuswrt
 
-      # Example for GitHub Actions (inside workflow)
-      - name: Setup Broadcom toolchain
-        run: |
-          mkdir -p /opt/brcm
-          cp -r asuswrt/asuswrt/tools/brcm/hndtools-mipsel-* /opt/brcm/
-          export PATH=/opt/brcm/hndtools-mipsel-linux/bin:/opt/brcm/hndtools-mipsel-uclibc/bin:$PATH
-          echo $PATH
-
       # 6️⃣ Build firmware
       - name: Build RT-AC1200G+ firmware
         run: |
