@@ -1,0 +1,96 @@
+name: Build ASUSWRT RT-AC1200G+ (Broadcom MIPS)
+
+# Manual trigger with dynamic download URL
+on:
+  workflow_dispatch:
+    inputs:
+      download_url:
+        description: 'Direct URL to ASUSWRT GPL zip'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Install full build dependencies including 32-bit libs
+      - name: Install build dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            gcc-multilib \
+            g++-multilib \
+            make \
+            m4 \
+            bison \
+            flex \
+            gawk \
+            autoconf \
+            autogen \
+            automake \
+            autopoint \
+            libtool \
+            shtool \
+            gettext \
+            texinfo \
+            sharutils \
+            xsltproc \
+            docbook-xsl \
+            intltool \
+            mtd-utils \
+            dos2unix \
+            u-boot-tools \
+            device-tree-compiler \
+            qemu \
+            gperf \
+            uuid-dev \
+            liblzo2-dev \
+            liblzma-dev \
+            zlib1g-dev \
+            libglib2.0-dev \
+            cmake \
+            binutils-dev \
+            file \
+            wget \
+            git \
+            vim \
+            python3 \
+            pkg-config \
+            libc6-i386 \
+            lib32stdc++6 \
+            lib32z1 \
+            libncurses5-dev \
+            libncurses5:i386
+
+      # 3️⃣ Download ASUSWRT source dynamically
+      - name: Download ASUSWRT source
+        run: |
+          echo "Downloading ASUSWRT from URL: ${{ github.event.inputs.download_url }}"
+          wget -O asuswrt.zip "${{ github.event.inputs.download_url }}"
+          unzip asuswrt.zip -d asuswrt
+
+      # 4️⃣ Build firmware
+      - name: Build RT-AC1200G+ firmware
+        run: |
+          cd asuswrt/release/src-rt-9.x
+          make RT-AC1200G+ -j$(nproc)
+
+      # 5️⃣ Collect output firmware
+      - name: Collect firmware artifact
+        run: |
+          mkdir -p output
+          find asuswrt/release/src-rt-9.x -type f -name "*.trx" -exec cp {} output/ \;
+          ls -lh output
+
+      # 6️⃣ Upload firmware artifact to GitHub
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RT-AC1200Gplus-firmware
+          path: output/
