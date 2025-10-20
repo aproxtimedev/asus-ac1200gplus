@@ -1,6 +1,5 @@
 name: Build ASUSWRT RT-AC1200G+ (Broadcom MIPS)
 
-# Manual trigger with dynamic download URL
 on:
   workflow_dispatch:
     inputs:
@@ -17,7 +16,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Install full build dependencies including 32-bit libs
+      # 2️⃣ Cache APT packages
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt
+
+      # 3️⃣ Install build dependencies including 32-bit libs
       - name: Install build dependencies
         run: |
           sudo dpkg --add-architecture i386
@@ -66,29 +72,40 @@ jobs:
             lib32stdc++6 \
             lib32z1 \
             libncurses5-dev \
-            libncurses5:i386
+            libncurses5:i386 \
+            ccache
 
-      # 3️⃣ Download ASUSWRT source dynamically
-      - name: Download ASUSWRT source
+      # 4️⃣ Enable ccache
+      - name: Setup ccache
+        run: |
+          export CC="ccache gcc"
+          export CXX="ccache g++"
+          ccache -s
+
+      # 5️⃣ Download and extract ASUSWRT source
+      - name: Download and extract ASUSWRT source
         run: |
           echo "Downloading ASUSWRT from URL: ${{ github.event.inputs.download_url }}"
           wget -O asuswrt.zip "${{ github.event.inputs.download_url }}"
           unzip asuswrt.zip -d asuswrt
+          TGZ_FILE=$(find asuswrt -type f -name "*.tgz" | head -n 1)
+          echo "Extracting $TGZ_FILE"
+          tar xvf "$TGZ_FILE" -C asuswrt
 
-      # 4️⃣ Build firmware
+      # 6️⃣ Build firmware
       - name: Build RT-AC1200G+ firmware
         run: |
           cd asuswrt/release/src-rt-9.x
           make RT-AC1200G+ -j$(nproc)
 
-      # 5️⃣ Collect output firmware
+      # 7️⃣ Collect output firmware
       - name: Collect firmware artifact
         run: |
           mkdir -p output
           find asuswrt/release/src-rt-9.x -type f -name "*.trx" -exec cp {} output/ \;
           ls -lh output
 
-      # 6️⃣ Upload firmware artifact to GitHub
+      # 8️⃣ Upload firmware artifact to GitHub
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
